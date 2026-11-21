@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useState } from "react";
 
 type IconName =
   | "edit"
@@ -105,9 +105,9 @@ function Icon({ name, size = 20 }: { name: IconName; size?: number }) {
   );
 }
 
-const defaultMessage =
+const message =
   "Tôi rất hào hứng thông báo: sau nhiều năm tối ưu thuật toán và tiêu thụ cà phê, tôi đã chính thức đủ điều kiện mặc áo choàng ra ngoài vào ban ngày.\n\nNhân dịp tốt nghiệp ngành Khoa học Máy tính, tôi đang tìm kiếm những đồng đội chiến lược đến chung vui, vỗ tay và xác nhận rằng tôi thực sự có bằng.";
-const emptyDetails = {
+const details = {
   graduate: "Nguyễn Trịnh Châu",
   friend: "",
   date: "Chủ nhật, 29/11/2026",
@@ -116,11 +116,6 @@ const emptyDetails = {
 };
 
 export default function App() {
-  const [details, setDetails] = useState(emptyDetails);
-  const [draft, setDraft] = useState(emptyDetails);
-  const [message, setMessage] = useState(defaultMessage);
-  const [draftMessage, setDraftMessage] = useState(defaultMessage);
-  const [modal, setModal] = useState(false);
   const [liked, setLiked] = useState(false);
   const [saved, setSaved] = useState(false);
   const [expanded, setExpanded] = useState(false);
@@ -129,8 +124,6 @@ export default function App() {
   const [commenting, setCommenting] = useState(false);
   const [comment, setComment] = useState("");
   const [previewComment, setPreviewComment] = useState("");
-  const closeRef = useRef<HTMLButtonElement>(null);
-  const openerRef = useRef<HTMLElement | null>(null);
   const author = details.graduate || "Một tân cử nhân";
   const initials = details.graduate
     ? details.graduate
@@ -149,43 +142,6 @@ export default function App() {
     },
     { icon: "pin", label: "Văn phòng hôm đó", value: details.venue || "Địa điểm sẽ được cập nhật" },
   ];
-
-  function openEdit() {
-    openerRef.current = document.activeElement as HTMLElement;
-    setDraft(details);
-    setDraftMessage(message);
-    setModal(true);
-  }
-
-  useEffect(() => {
-    if (!modal) return;
-    closeRef.current?.focus();
-    const previous = document.body.style.overflow;
-    document.body.style.overflow = "hidden";
-    function handleKey(event: KeyboardEvent) {
-      if (event.key === "Escape") setModal(false);
-      if (event.key === "Tab") {
-        const elements = document.querySelectorAll<HTMLElement>(
-          ".edit-modal button, .edit-modal input, .edit-modal textarea",
-        );
-        const first = elements[0],
-          last = elements[elements.length - 1];
-        if (event.shiftKey && document.activeElement === first) {
-          event.preventDefault();
-          last.focus();
-        } else if (!event.shiftKey && document.activeElement === last) {
-          event.preventDefault();
-          first.focus();
-        }
-      }
-    }
-    window.addEventListener("keydown", handleKey);
-    return () => {
-      document.body.style.overflow = previous;
-      window.removeEventListener("keydown", handleKey);
-      openerRef.current?.focus();
-    };
-  }, [modal]);
 
   useEffect(() => {
     if (!notice) return;
@@ -300,17 +256,7 @@ export default function App() {
               <Icon name="home" size={19} />
               Bảng tin
             </span>
-            <button onClick={openEdit}>
-              <Icon name="edit" size={18} />
-              <span>Chỉnh sửa thiệp</span>
-            </button>
-            <button
-              className="nav-avatar"
-              onClick={openEdit}
-              aria-label="Chỉnh sửa thông tin của bạn"
-            >
-              {initials}
-            </button>
+            <span className="nav-avatar grid place-items-center">{initials}</span>
           </nav>
         </div>
       </header>
@@ -345,10 +291,6 @@ export default function App() {
                 <strong>∞</strong>
               </div>
             </div>
-            <button className="profile-edit" onClick={openEdit}>
-              <Icon name="edit" size={15} />
-              Cập nhật hồ sơ ứng viên
-            </button>
           </section>
           <section className="panel side-note">
             <span className="section-overline">GHI CHÚ NỘI BỘ</span>
@@ -667,109 +609,6 @@ export default function App() {
         <div className="toast" role="status">
           <Icon name="check" size={17} />
           {notice}
-        </div>
-      )}
-      {modal && (
-        <div className="modal-backdrop" onClick={() => setModal(false)}>
-          <section
-            className="edit-modal"
-            role="dialog"
-            aria-modal="true"
-            aria-labelledby="modal-title"
-            onClick={(event) => event.stopPropagation()}
-          >
-            <button
-              ref={closeRef}
-              className="close-button"
-              onClick={() => setModal(false)}
-              aria-label="Đóng"
-            >
-              <Icon name="close" />
-            </button>
-            <span className="section-overline">PHÒNG NHÂN SỰ XIN CHÀO</span>
-            <h2 id="modal-title">Cá nhân hóa chiếc JD.</h2>
-            <p className="modal-intro">Thông tin thật. Giọng văn hơi bất ổn.</p>
-            <form
-              onSubmit={(event) => {
-                event.preventDefault();
-                setDetails(
-                  Object.fromEntries(
-                    Object.entries(draft).map(([key, value]) => [key, value.trim()]),
-                  ) as typeof emptyDetails,
-                );
-                setMessage(draftMessage.trim());
-                setModal(false);
-                setNotice("Đã cập nhật thư mời. Sẵn sàng chiêu mộ hội bạn thân!");
-              }}
-            >
-              <label htmlFor="graduate">Tên bạn (chủ xị lễ tốt nghiệp)</label>
-              <input
-                id="graduate"
-                value={draft.graduate}
-                maxLength={32}
-                onChange={(event) => setDraft({ ...draft, graduate: event.target.value })}
-                placeholder="Ví dụ: Nguyễn Minh Anh"
-              />
-              <label htmlFor="friend">
-                Gửi riêng cho ai? <span>(không bắt buộc)</span>
-              </label>
-              <input
-                id="friend"
-                value={draft.friend}
-                maxLength={32}
-                onChange={(event) => setDraft({ ...draft, friend: event.target.value })}
-                placeholder="Tên ứng viên bạn thân"
-              />
-              <div className="form-row">
-                <div>
-                  <label htmlFor="date">Ngày tốt nghiệp</label>
-                  <input
-                    id="date"
-                    value={draft.date}
-                    maxLength={40}
-                    onChange={(event) => setDraft({ ...draft, date: event.target.value })}
-                    placeholder="Ví dụ: 20/06/2026"
-                  />
-                </div>
-                <div>
-                  <label htmlFor="time">Giờ có mặt</label>
-                  <input
-                    id="time"
-                    value={draft.time}
-                    maxLength={24}
-                    onChange={(event) => setDraft({ ...draft, time: event.target.value })}
-                    placeholder="Ví dụ: 09:00 sáng"
-                  />
-                </div>
-              </div>
-              <label htmlFor="venue">Địa điểm / chỗ hẹn</label>
-              <input
-                id="venue"
-                value={draft.venue}
-                maxLength={80}
-                onChange={(event) => setDraft({ ...draft, venue: event.target.value })}
-                placeholder="Tên trường, hội trường hoặc điểm hẹn"
-              />
-              <label htmlFor="message">Đôi lời từ ban lãnh đạo (là bạn)</label>
-              <textarea
-                id="message"
-                rows={7}
-                value={draftMessage}
-                onChange={(event) => setDraftMessage(event.target.value)}
-                maxLength={500}
-                required
-              />
-              <span className="character-count">
-                {draftMessage.length}/500 ký tự · Không cần xin duyệt sếp.
-              </span>
-              <button className="button primary modal-submit" type="submit">
-                Duyệt và đăng thiệp <Icon name="check" size={17} />
-              </button>
-              <p className="modal-footnote">
-                Chỉnh sửa chỉ áp dụng cho bản thiệp đang mở. Tải PNG để lưu và gửi bạn bè.
-              </p>
-            </form>
-          </section>
         </div>
       )}
     </div>
