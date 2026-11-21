@@ -1,0 +1,10 @@
+{
+  "description": "Create a funny, weird graduation postcard with playful themes and creative visuals to celebrate graduates and share a memorable congratulations.",
+  "robots": {
+    "index": false
+  },
+  "accessibility": {
+    "addBypassLinks": false,
+    "ignoreReducedMotion": false
+  }
+}
