@@ -107,7 +107,13 @@ function Icon({ name, size = 20 }: { name: IconName; size?: number }) {
 
 const defaultMessage =
   "Tôi rất hào hứng thông báo: sau nhiều năm tối ưu thuật toán và tiêu thụ cà phê, tôi đã chính thức đủ điều kiện mặc áo choàng ra ngoài vào ban ngày.\n\nNhân dịp tốt nghiệp ngành Khoa học Máy tính, tôi đang tìm kiếm những đồng đội chiến lược đến chung vui, vỗ tay và xác nhận rằng tôi thực sự có bằng.";
-const emptyDetails = { graduate: "", friend: "", date: "", time: "", venue: "" };
+const emptyDetails = {
+  graduate: "Nguyễn Trịnh Châu",
+  friend: "",
+  date: "Chủ nhật, 29/11/2026",
+  time: "10:00 sáng",
+  venue: "Cơ sở 1: 268 Lý Thường Kiệt, Phường Diên Hồng, Tp.HCM",
+};
 
 export default function App() {
   const [details, setDetails] = useState(emptyDetails);
@@ -618,10 +624,6 @@ export default function App() {
               <span />
               Hợp đồng: Một ngày đáng nhớ
             </div>
-            <button className="button primary" onClick={openEdit}>
-              <Icon name="edit" size={16} />
-              Điền thông tin buổi lễ
-            </button>
             <button className="button outline" onClick={downloadCard} disabled={downloading}>
               <Icon name="download" size={16} />
               {downloading ? "Đang chuẩn bị…" : "Tải thiệp mời PNG"}
